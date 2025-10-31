@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CupraCalc – Calcolo fasce €/kWh</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="CupraCalc">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="theme-color" content="#111111">
+<link rel="manifest" href="manifest.json">
+
+<style>
+  :root { --bg:#111; --fg:#e9eef5; --muted:#b7bfcc; --accent:#d4af37; --panel:#1a1f27; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px system-ui, -apple-system, Segoe UI, Roboto, Arial; background:var(--bg); color:var(--fg); }
+  main { max-width: 700px; margin: 0 auto; padding: 18px; }
+  h1 { font-size:18px; margin: 8px 0 14px; color: var(--accent); }
+  .card { background: var(--panel); border:1px solid #2a3240; border-radius:12px; padding:14px; margin-bottom:12px; }
+  label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+  input[type="number"], input[type="text"] { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #334; background:#0f131a; color:var(--fg); }
+  .row { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; }
+  .row-2 { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  @media (max-width: 700px){ .row, .row-2 { grid-template-columns: 1fr; } }
+  button { padding:10px 14px; border-radius:10px; background:#222018; color:var(--fg); border:1px solid #6b5a23; cursor:pointer; }
+  button:hover { border-color: var(--accent); }
+  .bar { padding:10px 0 0; }
+  .range-wrap { position:relative; padding: 10px 6px 0; }
+  .range { -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:4px; background:#2a3444; outline:none; }
+  .range::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%; background:var(--accent); border:1px solid #d4af37; cursor:pointer; }
+  .range::-moz-range-thumb { width:20px; height:20px; border-radius:50%; background:var(--accent); border:1px solid #d4af37; cursor:pointer; }
+  .range-track { position:absolute; left:6px; right:6px; height:6px; top:18px; border-radius:4px; background:#2a3444; }
+  .range-fill { position:absolute; height:6px; top:18px; border-radius:4px; background:#8c6c10; }
+  table { width:100%; border-collapse:collapse; margin-top:10px; }
+  th, td { padding:10px 8px; border-bottom:1px solid #2a3240; text-align:right; }
+  th:first-child, td:first-child { text-align:left; }
+  .muted { color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>CupraCalc – Calcolo prezzi per F1/F2/F3 con finestra di ricarica</h1>
+
+  <section class="card">
+    <div class="row">
+      <div>
+        <label>PUN F1 (€/kWh)</label>
+        <input id="pun_f1" type="number" step="0.000001" placeholder="es. 0.120000">
+      </div>
+      <div>
+        <label>PUN F2 (€/kWh)</label>
+        <input id="pun_f2" type="number" step="0.000001" placeholder="es. 0.140000">
+      </div>
+      <div>
+        <label>PUN F3 (€/kWh)</label>
+        <input id="pun_f3" type="number" step="0.000001" placeholder="es. 0.110000">
+      </div>
+    </div>
+    <div class="row-2" style="margin-top:10px">
+      <div>
+        <label>kWh per 0→100% (in presa)</label>
+        <input id="kwh_full" type="number" step="0.1" value="22.5">
+        <div class="muted">Default 22.5 kWh.</div>
+      </div>
+      <div>
+        <label>Parametri fissi (Alfa/Disp/Extra)</label>
+        <input id="params" type="text" value="Alfa F1=0.099, Alfa F2=0.099, Alfa F3=0.035, Disp=0.023063, Extra=0.044674" disabled>
+      </div>
+    </div>
+    <div class="bar">
+      <label>Finestra di ricarica: <span id="lblWindow">0% → 100% (100%)</span></label>
+      <div class="range-wrap">
+        <div class="range-track"></div>
+        <div id="fill" class="range-fill" style="left:0%; right:0%"></div>
+        <input id="start" class="range" type="range" min="0" max="100" value="0">
+        <input id="end" class="range" type="range" min="0" max="100" value="100">
+      </div>
+    </div>
+    <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap">
+      <button id="calc">Calcola</button>
+      <button id="reset">Reset</button>
+    </div>
+  </section>
+
+  <section class="card" id="out" style="display:none">
+    <div id="tbl"></div>
+    <p class="muted" id="note"></p>
+  </section>
+
+  <section class="card">
+    <strong>Parametri usati</strong>
+    <p class="muted">F1 = PUN_F1 + 0.099000 + 0.023063 + 0.044674 ·· F2 = PUN_F2 + 0.099000 + 0.023063 + 0.044674 ·· F3 = PUN_F3 + 0.035000 + 0.023063 + 0.044674</p>
+  </section>
+</main>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(console.error);
+  });
+}
+(function(){
+  const alfaF1 = 0.099000, alfaF2 = 0.099000, alfaF3 = 0.035000;
+  const disp = 0.023063, extra = 0.044674;
+
+  const el = id => document.getElementById(id);
+  const start = el('start'), end = el('end'), fill = el('fill'), lbl = el('lblWindow');
+
+  function clampSliders(){
+    if (parseInt(start.value) > parseInt(end.value)) {
+      const s = parseInt(start.value), e = parseInt(end.value);
+      if (s - e > 0) start.value = e; else end.value = s;
+    }
+    const s = parseInt(start.value), e = parseInt(end.value);
+    const width = Math.max(0, e - s);
+    lbl.textContent = `${s}% → ${e}% (${width}%)`;
+    fill.style.left = s + "%";
+    fill.style.right = (100 - e) + "%";
+  }
+  start.addEventListener('input', clampSliders);
+  end.addEventListener('input', clampSliders);
+  clampSliders();
+
+  el('reset').addEventListener('click', ()=>{
+    el('pun_f1').value = '';
+    el('pun_f2').value = '';
+    el('pun_f3').value = '';
+    el('kwh_full').value = 22.5;
+    start.value = 0; end.value = 100; clampSliders();
+    el('out').style.display = 'none';
+    el('tbl').innerHTML = '';
+  });
+
+  el('calc').addEventListener('click', ()=>{
+    const pun1 = parseFloat(el('pun_f1').value) || 0;
+    const pun2 = parseFloat(el('pun_f2').value) || 0;
+    const pun3 = parseFloat(el('pun_f3').value) || 0;
+    const kwhFull = Math.max(0, parseFloat(el('kwh_full').value) || 0);
+
+    const p1 = pun1 + alfaF1 + disp + extra;
+    const p2 = pun2 + alfaF2 + disp + extra;
+    const p3 = pun3 + alfaF3 + disp + extra;
+
+    const c1_full = kwhFull * p1;
+    const c2_full = kwhFull * p2;
+    const c3_full = kwhFull * p3;
+
+    const s = parseInt(start.value), e = parseInt(end.value);
+    const winPct = Math.max(0, e - s);
+    const factor = winPct / 100;
+
+    const c1_win = c1_full * factor;
+    const c2_win = c2_full * factor;
+    const c3_win = c3_full * factor;
+
+    const fmt = (n,d=6)=> isFinite(n) ? n.toFixed(d) : '—';
+    const fmt2 = n => isFinite(n) ? n.toFixed(2) : '—';
+
+    const html = `
+      <table>
+        <thead>
+          <tr>
+            <th>Fascia</th>
+            <th>€/kWh</th>
+            <th>€ (0→100%)</th>
+            <th>€ (${s}%→${e}%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>F1</td><td>${fmt(p1)}</td><td><strong>${fmt2(c1_full)}</strong></td><td><strong>${fmt2(c1_win)}</strong></td></tr>
+          <tr><td>F2</td><td>${fmt(p2)}</td><td><strong>${fmt2(c2_full)}</strong></td><td><strong>${fmt2(c2_win)}</strong></td></tr>
+          <tr><td>F3</td><td>${fmt(p3)}</td><td><strong>${fmt2(c3_full)}</strong></td><td><strong>${fmt2(c3_win)}</strong></td></tr>
+        </tbody>
+      </table>
+    `;
+    el('tbl').innerHTML = html;
+    el('note').textContent = `Calcolo: €(finestra) = €(0→100%) × (${winPct}%)`;
+    el('out').style.display = 'block';
+  });
+})();
+</script>
+</body>
+</html>

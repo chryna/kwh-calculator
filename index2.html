@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Calcolo fasce €/kWh + finestra SOC</title>
+<style>
+  :root { --bg:#0f1115; --panel:#171a21; --muted:#aeb4c0; --fg:#eef2f7; --accent:#7aa7ff; --ok:#2ecc71; --warn:#f1c40f; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial; background:var(--bg); color:var(--fg); }
+  main { max-width: 900px; margin: 0 auto; padding: 18px; }
+  h1 { font-size: 18px; margin: 6px 0 14px; color: var(--accent); }
+  .card { background: var(--panel); border:1px solid #232a3a; border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+  .row { display:grid; grid-template-columns: repeat(3,1fr); gap:10px; }
+  .row-2 { display:grid; grid-template-columns: repeat(2,1fr); gap:10px; }
+  @media (max-width: 720px){ .row, .row-2 { grid-template-columns: 1fr; } }
+  label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+  input[type="number"], input[type="text"] { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #2b3448; background:#0e131b; color:var(--fg); }
+  button { padding:10px 14px; border-radius:10px; background:#223252; color:var(--fg); border:1px solid #344e7a; cursor:pointer; }
+  button:hover { border-color: var(--accent); }
+  .muted { color: var(--muted); font-size:12px; }
+  table { width:100%; border-collapse: collapse; margin-top:10px; }
+  th, td { padding:10px 8px; border-bottom:1px solid #2a3240; text-align:right; }
+  th:first-child, td:first-child { text-align:left; }
+  .bar { padding-top: 10px; }
+  .range-wrap { position:relative; padding: 10px 6px 0; }
+  .range-track { position:absolute; left:6px; right:6px; height:6px; top:18px; border-radius:4px; background:#2a3444; }
+  .range-fill { position:absolute; height:6px; top:18px; border-radius:4px; background:#7ab0ff; }
+  .range { -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:4px; background:transparent; outline:none; pointer-events:auto; position:relative; }
+  .range::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%; background:var(--accent); border:1px solid #98bdff; cursor:pointer; }
+  .range::-moz-range-thumb { width:20px; height:20px; border-radius:50%; background:var(--accent); border:1px solid #98bdff; cursor:pointer; }
+  .pill { display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; background:#23304a; border:1px solid #31405e; color:#cfe1ff; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Calcolo fasce €/kWh + finestra SOC</h1>
+
+  <!-- Sezione PUN nazionale -->
+  <section class="card">
+    <h2 style="margin:0 0 10px; font-size:16px; color:var(--accent)">1) PUN nazionale → PUN per fasce</h2>
+    <div class="row-2">
+      <div>
+        <label>PUN nazionale (€/kWh)</label>
+        <input id="pun_nat" type="number" step="0.000001" placeholder="es. 0.115000">
+        <div class="muted">Usa 6 decimali. Le fasce verranno calcolate con: F1 +5,94% · F2 +23,64% · F3 +5,49%.</div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:flex-end;">
+        <button id="btnCalcFasce" type="button">Calcola fasce da PUN nazionale</button>
+        <button id="btnResetFasce" type="button">Reset</button>
+      </div>
+    </div>
+    <div id="tblFasce"></div>
+  </section>
+
+  <!-- Sezione PUN per fascia & parametri -->
+  <section class="card">
+    <h2 style="margin:0 0 10px; font-size:16px; color:var(--accent)">2) Parametri di calcolo</h2>
+    <div class="row">
+      <div>
+        <label>PUN F1 (€/kWh)</label>
+        <input id="pun_f1" type="number" step="0.000001" placeholder="es. 0.120000">
+      </div>
+      <div>
+        <label>PUN F2 (€/kWh)</label>
+        <input id="pun_f2" type="number" step="0.000001" placeholder="es. 0.140000">
+      </div>
+      <div>
+        <label>PUN F3 (€/kWh)</label>
+        <input id="pun_f3" type="number" step="0.000001" placeholder="es. 0.110000">
+      </div>
+    </div>
+
+    <div class="row-2" style="margin-top:10px">
+      <div>
+        <label>kWh assorbiti per 0→100%</label>
+        <input id="kwh_full" type="number" step="0.1" value="22.5">
+        <div class="muted">Default 22.5 kWh (Terramar e-Hybrid: 19.7 kWh netti / ~13% perdite).</div>
+      </div>
+      <div>
+        <label>Parametri fissi (Alfa/Disp/Extra)</label>
+        <input id="params" type="text" value="Alfa F1=0.099000 · Alfa F2=0.099000 · Alfa F3=0.035000 · Disp=0.023063 · Extra=0.044674" disabled>
+      </div>
+    </div>
+
+    <!-- Slider doppio per finestra SOC -->
+    <div class="bar">
+      <label>Finestra ricarica: <span id="lblWindow" class="pill">0% → 100% (100%)</span></label>
+      <div class="range-wrap">
+        <div class="range-track"></div>
+        <div id="fill" class="range-fill" style="left:0%; right:0%"></div>
+        <input id="start" class="range" type="range" min="0" max="100" value="0">
+        <input id="end" class="range" type="range" min="0" max="100" value="100">
+      </div>
+    </div>
+
+    <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap">
+      <button id="btnCalc" type="button">Calcola costi per F1 / F2 / F3</button>
+      <button id="btnResetAll" type="button">Reset tutto</button>
+    </div>
+  </section>
+
+  <!-- Output -->
+  <section class="card" id="out" style="display:none">
+    <div id="tbl"></div>
+    <p class="muted" id="note"></p>
+    <p class="muted">Formule: €/kWh fascia = PUN_fascia + Alfa + Disp + Extra ·· €(0→100%) = kWh_full × €/kWh ·· €(start→end) = €(0→100%) × (end−start)%</p>
+  </section>
+</main>
+
+<script>
+(function(){
+  // Costanti fisse (contratto)
+  const alfaF1 = 0.099000, alfaF2 = 0.099000, alfaF3 = 0.035000;
+  const disp = 0.023063, extra = 0.044674;
+
+  // Moltiplicatori per PUN nazionale → PUN per fascia
+  const mF1 = 1.0594; // +5,94%
+  const mF2 = 1.2364; // +23,64%
+  const mF3 = 1.0549; // +5,49%
+
+  const el = id => document.getElementById(id);
+
+  // Gestione slider doppio
+  const start = el('start'), end = el('end'), fill = el('fill'), lbl = el('lblWindow');
+  function clampSliders(){
+    let s = parseInt(start.value), e = parseInt(end.value);
+    if (s > e) { const t = s; s = e; e = t; start.value = s; end.value = e; }
+    const win = Math.max(0, e - s);
+    lbl.textContent = `${s}% → ${e}% (${win}%)`;
+    fill.style.left = s + "%";
+    fill.style.right = (100 - e) + "%";
+  }
+  start.addEventListener('input', clampSliders);
+  end.addEventListener('input', clampSliders);
+  clampSliders();
+
+  // Pulsante: calcola PUN per fasce dal PUN nazionale
+  el('btnCalcFasce').addEventListener('click', ()=>{
+    const pn = parseFloat(el('pun_nat').value) || 0;
+    const f1 = pn * mF1;
+    const f2 = pn * mF2;
+    const f3 = pn * mF3;
+
+    // Popola i campi PUN F1/F2/F3
+    el('pun_f1').value = f1.toFixed(6);
+    el('pun_f2').value = f2.toFixed(6);
+    el('pun_f3').value = f3.toFixed(6);
+
+    // Tabellina di riepilogo
+    el('tblFasce').innerHTML = `
+      <table>
+        <thead><tr><th>Fascia</th><th>Formula</th><th>PUN risultante (€/kWh)</th></tr></thead>
+        <tbody>
+          <tr><td>F1</td><td>PUN × 1.0594</td><td><strong>${f1.toFixed(6)}</strong></td></tr>
+          <tr><td>F2</td><td>PUN × 1.2364</td><td><strong>${f2.toFixed(6)}</strong></td></tr>
+          <tr><td>F3</td><td>PUN × 1.0549</td><td><strong>${f3.toFixed(6)}</strong></td></tr>
+        </tbody>
+      </table>
+      <p class="muted">I valori sopra sono i PUN “fasciati”. Ora puoi premere “Calcola costi per F1 / F2 / F3”.</p>
+    `;
+  });
+
+  // Reset PUN fasce
+  el('btnResetFasce').addEventListener('click', ()=>{
+    el('pun_nat').value = '';
+    el('pun_f1').value = '';
+    el('pun_f2').value = '';
+    el('pun_f3').value = '';
+    el('tblFasce').innerHTML = '';
+  });
+
+  // Pulsante: calcola costi per finestra SOC
+  el('btnCalc').addEventListener('click', ()=>{
+    const pun1 = parseFloat(el('pun_f1').value) || 0;
+    const pun2 = parseFloat(el('pun_f2').value) || 0;
+    const pun3 = parseFloat(el('pun_f3').value) || 0;
+    const kwhFull = Math.max(0, parseFloat(el('kwh_full').value) || 0);
+
+    // Prezzo €/kWh finale per fascia
+    const p1 = pun1 + alfaF1 + disp + extra;
+    const p2 = pun2 + alfaF2 + disp + extra;
+    const p3 = pun3 + alfaF3 + disp + extra;
+
+    // Costi 0→100%
+    const c1_full = kwhFull * p1;
+    const c2_full = kwhFull * p2;
+    const c3_full = kwhFull * p3;
+
+    // Finestra selezionata
+    const s = parseInt(start.value), e = parseInt(end.value);
+    const winPct = Math.max(0, e - s) / 100;
+
+    // Costi finestra (proporzionali)
+    const c1_win = c1_full * winPct;
+    const c2_win = c2_full * winPct;
+    const c3_win = c3_full * winPct;
+
+    const fmt6 = n => (isFinite(n) ? n.toFixed(6) : '—');
+    const fmt2 = n => (isFinite(n) ? n.toFixed(2) : '—');
+
+    const html = `
+      <table>
+        <thead>
+          <tr>
+            <th>Fascia</th>
+            <th>€/kWh (totale)</th>
+            <th>€ (0→100%)</th>
+            <th>€ (${s}%→${e}%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>F1</td><td>${fmt6(p1)}</td><td><strong>${fmt2(c1_full)}</strong></td><td><strong>${fmt2(c1_win)}</strong></td></tr>
+          <tr><td>F2</td><td>${fmt6(p2)}</td><td><strong>${fmt2(c2_full)}</strong></td><td><strong>${fmt2(c2_win)}</strong></td></tr>
+          <tr><td>F3</td><td>${fmt6(p3)}</td><td><strong>${fmt2(c3_full)}</strong></td><td><strong>${fmt2(c3_win)}</strong></td></tr>
+        </tbody>
+      </table>
+    `;
+    el('tbl').innerHTML = html;
+    el('note').textContent = `kWh per 0→100% = ${kwhFull} · Finestra = ${s}%→${e}% · Fattore = ${(winPct*100).toFixed(0)}%`;
+    el('out').style.display = 'block';
+  });
+
+  // Reset totale
+  el('btnResetAll').addEventListener('click', ()=>{
+    ['pun_nat','pun_f1','pun_f2','pun_f3','kwh_full'].forEach(id=> el(id).value = '');
+    el('kwh_full').value = 22.5;
+    el('tblFasce').innerHTML = '';
+    start.value = 0; end.value = 100; clampSliders();
+    el('tbl').innerHTML = ''; el('note').textContent = ''; el('out').style.display = 'none';
+  });
+})();
+</script>
+</body>
+</html>

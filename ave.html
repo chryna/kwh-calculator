@@ -1,411 +1,91 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Avecar - Noleggio Auto & Servizi</title>
-  <meta name="description" content="Avecar - Noleggio auto, servizi di mobilità e assistenza. Prenota la tua auto in pochi click.">
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-  <!-- Header -->
-  <header class="header">
-    <div class="container header__inner">
-      <div class="logo">
-        <span class="logo__icon">A</span>
-        <span class="logo__text">Avecar</span>
-      </div>
+<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"/><meta name="viewport"content="width=device-width,initial-scale=1.0"/><title>Avecar - Test Site</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"rel="stylesheet">
+<style>
+body{margin:0;font-family:Inter,sans-serif;background:#090B14;color:#fff;line-height:1.4}a{text-decoration:none;color:#fff}
+header{position:sticky;top:0;background:rgba(0,0,0,.6);backdrop-filter:blur(10px);padding:12px 20px;display:flex;justify-content:space-between;align-items:center}
+nav a{margin-left:16px;color:#aaa;font-size:.9rem}nav a:hover{color:#fff}
+h1,h2,h3{margin:0}
+.container{width:100%;max-width:1100px;margin:auto;padding:0 18px}
+.hero{padding:90px 0;background:linear-gradient(135deg,#161927,#0d0f19);text-align:left}
+.hero h1{font-size:2.2rem;margin-bottom:10px}
+.hero p{color:#bbb;max-width:400px}
+.btn{padding:10px 18px;border-radius:50px;border:0;cursor:pointer;font-size:.9rem}
+.primary{background:#ff4747;color:#fff}
+.ghost{border:1px solid #fff;background:transparent;color:#fff}
+.section{padding:60px 0}
+.grid{display:grid;gap:18px}
+.g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:#11131d;border:1px solid #22252F;padding:18px;border-radius:14px}
+.card h3{margin-bottom:6px}
+.card p,.card li{color:#bbb;font-size:.85rem}
+ul{padding-left:18px;margin:0}
+.fleet .car{padding:14px;border-radius:12px;background:#131623;border:1px solid #222}
+.fleet span{font-size:.75rem;color:#aaa}
+.contact form{display:grid;gap:10px}
+input,textarea,select{width:100%;padding:10px;border:1px solid #222;background:#0b0d14;color:#fff;border-radius:8px;resize:none}
+footer{padding:25px 0;text-align:center;color:#777;font-size:.8rem}
+@media(max-width:720px){nav{display:none}}
+</style>
+</head><body>
 
-      <nav class="nav" id="mainNav">
-        <a href="#hero">Home</a>
-        <a href="#services">Servizi</a>
-        <a href="#fleet">Flotta</a>
-        <a href="#about">Chi siamo</a>
-        <a href="#contact" class="nav__cta">Contatti</a>
-      </nav>
+<header>
+<div class="logo"><strong>AVECAR</strong></div>
+<nav>
+<a href="#hero">Home</a><a href="#services">Servizi</a><a href="#fleet">Flotta</a><a href="#contact">Contatti</a>
+</nav>
+</header>
 
-      <button class="burger" id="burgerBtn" aria-label="Apri menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
+<section class="hero" id="hero">
+<div class="container">
+<h1>Noleggio auto semplice e veloce.</h1>
+<p>Scegli il veicolo perfetto per lavoro, viaggio o tempo libero.</p>
+<div style="margin-top:18px">
+<button class="btn primary">Scopri flotta</button>
+<button class="btn ghost">Richiedi preventivo</button>
+</div>
+</div>
+</section>
 
-  <!-- Hero -->
-  <section class="hero" id="hero">
-    <div class="hero__overlay"></div>
-    <div class="container hero__content">
-      <div class="hero__text">
-        <h1>Noleggio auto semplice, veloce e su misura.</h1>
-        <p>
-          Avecar ti offre soluzioni di mobilità flessibili: auto per lavoro, viaggio o tempo libero, con assistenza dedicata.
-        </p>
-        <div class="hero__actions">
-          <a href="#fleet" class="btn btn--primary">Scopri la flotta</a>
-          <a href="#contact" class="btn btn--ghost">Richiedi un preventivo</a>
-        </div>
+<section class="section" id="services">
+<div class="container">
+<h2>Servizi</h2>
+<div class="grid g3" style="margin-top:22px">
+<div class="card"><h3>Breve termine</h3><p>Auto anche per 1 giorno.</p></div>
+<div class="card"><h3>Lungo termine</h3><p>Pacchetti aziendali e privati.</p></div>
+<div class="card"><h3>Flotte business</h3><p>Gestione completa con assistenza dedicata.</p></div>
+</div>
+</div>
+</section>
 
-        <div class="hero__highlights">
-          <div><strong>24/7</strong><span>Assistenza</span></div>
-          <div><strong>+100</strong><span>Veicoli</span></div>
-          <div><strong>3 min</strong><span>Per prenotare</span></div>
-        </div>
-      </div>
+<section class="section fleet" id="fleet">
+<div class="container">
+<h2>Flotta</h2>
+<div class="grid g3" style="margin-top:22px">
+<div class="car"><h3>Fiat 500</h3><span>City Car – da 39€/giorno</span></div>
+<div class="car"><h3>BMW Serie 3</h3><span>Berlina – da 79€/giorno</span></div>
+<div class="car"><h3>Volvo XC40</h3><span>SUV – da 89€/giorno</span></div>
+<div class="car"><h3>Fiat Ducato</h3><span>Furgone – da 69€/giorno</span></div>
+</div>
+</div>
+</section>
 
-      <div class="hero__card">
-        <h2>Prenota ora</h2>
-        <form class="booking-form">
-          <label>
-            Località ritiro
-            <input type="text" placeholder="Es. Torino, Milano..." required>
-          </label>
-          <div class="booking-form__row">
-            <label>
-              Dal
-              <input type="date" required>
-            </label>
-            <label>
-              Al
-              <input type="date" required>
-            </label>
-          </div>
-          <label>
-            Tipo di veicolo
-            <select>
-              <option>Qualsiasi</option>
-              <option>City Car</option>
-              <option>Berline</option>
-              <option>SUV</option>
-              <option>Furgoni</option>
-            </select>
-          </label>
-          <button type="submit" class="btn btn--primary btn--full">
-            Verifica disponibilità
-          </button>
-          <p class="booking-form__note">Nessun pagamento immediato. Conferma solo dopo il nostro contatto.</p>
-        </form>
-      </div>
-    </div>
-  </section>
+<section class="section" id="contact">
+<div class="container">
+<h2>Contattaci</h2>
+<form style="margin-top:20px">
+<input placeholder="Nome e cognome" required>
+<input placeholder="Email" type="email" required>
+<select><option>Informazioni</option><option>Preventivo breve</option><option>Preventivo lungo</option></select>
+<textarea rows="4"placeholder="Messaggio"></textarea>
+<button class="btn primary" type="submit">Invia</button>
+</form>
+</div>
+</section>
 
-  <!-- Services -->
-  <section class="section" id="services">
-    <div class="container">
-      <header class="section__header">
-        <h2>I nostri servizi</h2>
-        <p>Una gamma completa di soluzioni per aziende e privati.</p>
-      </header>
+<footer>© 2025 Avecar – Test version</footer>
 
-      <div class="grid grid--3">
-        <article class="card card--service">
-          <h3>Noleggio a breve termine</h3>
-          <p>
-            Auto disponibili anche per un solo giorno, con chilometraggio flessibile e assistenza inclusa.
-          </p>
-          <ul>
-            <li>Ritiro rapido</li>
-            <li>Copertura base inclusa</li>
-            <li>Ideale per viaggi o emergenze</li>
-          </ul>
-        </article>
+<script>
+document.querySelector("form").addEventListener("submit",e=>{e.preventDefault();alert("Dati inviati (simulazione).")});
+</script>
 
-        <article class="card card--service">
-          <h3>Noleggio a lungo termine</h3>
-          <p>
-            Soluzioni per aziende e professionisti, senza pensieri di gestione, bollo o manutenzione.
-          </p>
-          <ul>
-            <li>Canone fisso mensile</li>
-            <li>Assicurazione completa</li>
-            <li>Assistenza e manutenzione incluse</li>
-          </ul>
-        </article>
-
-        <article class="card card--service">
-          <h3>Servizi business & flotte</h3>
-          <p>
-            Gestione flotta personalizzata, soluzioni multi-driver e supporto dedicato per la tua azienda.
-          </p>
-          <ul>
-            <li>Consulenza dedicata</li>
-            <li>Reportistica e controllo costi</li>
-            <li>Veicoli sostitutivi</li>
-          </ul>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- Fleet -->
-  <section class="section section--alt" id="fleet">
-    <div class="container">
-      <header class="section__header section__header--row">
-        <div>
-          <h2>La nostra flotta</h2>
-          <p>Selezione di veicoli recenti, efficienti e adatti a ogni esigenza.</p>
-        </div>
-        <div class="fleet-filters" id="fleetFilters">
-          <button class="chip chip--active" data-filter="all">Tutti</button>
-          <button class="chip" data-filter="city-car">City Car</button>
-          <button class="chip" data-filter="berlina">Berline</button>
-          <button class="chip" data-filter="suv">SUV</button>
-          <button class="chip" data-filter="van">Furgoni</button>
-        </div>
-      </header>
-
-      <div class="grid grid--4" id="fleetGrid">
-        <!-- Card 1 -->
-        <article class="card card--car" data-category="city-car">
-          <div class="card__media card__media--placeholder">
-            <span>City Car</span>
-          </div>
-          <div class="card__body">
-            <h3>Fiat 500 Hybrid</h3>
-            <p class="card__subtitle">Ideale per la città</p>
-            <ul class="card__tags">
-              <li>2-4 persone</li>
-              <li>Hybrid</li>
-              <li>Manuale</li>
-            </ul>
-            <div class="card__footer">
-              <span class="price">da 39€ / giorno</span>
-              <button class="btn btn--ghost btn--sm">Dettagli</button>
-            </div>
-          </div>
-        </article>
-
-        <!-- Card 2 -->
-        <article class="card card--car" data-category="berlina">
-          <div class="card__media card__media--placeholder">
-            <span>Berlina</span>
-          </div>
-          <div class="card__body">
-            <h3>BMW Serie 3</h3>
-            <p class="card__subtitle">Comfort e prestazioni</p>
-            <ul class="card__tags">
-              <li>5 posti</li>
-              <li>Diesel</li>
-              <li>Automatica</li>
-            </ul>
-            <div class="card__footer">
-              <span class="price">da 79€ / giorno</span>
-              <button class="btn btn--ghost btn--sm">Dettagli</button>
-            </div>
-          </div>
-        </article>
-
-        <!-- Card 3 -->
-        <article class="card card--car" data-category="suv">
-          <div class="card__media card__media--placeholder">
-            <span>SUV</span>
-          </div>
-          <div class="card__body">
-            <h3>Volvo XC40</h3>
-            <p class="card__subtitle">Sicurezza e spazio</p>
-            <ul class="card__tags">
-              <li>5 posti</li>
-              <li>Hybrid</li>
-              <li>Automatica</li>
-            </ul>
-            <div class="card__footer">
-              <span class="price">da 89€ / giorno</span>
-              <button class="btn btn--ghost btn--sm">Dettagli</button>
-            </div>
-          </div>
-        </article>
-
-        <!-- Card 4 -->
-        <article class="card card--car" data-category="van">
-          <div class="card__media card__media--placeholder">
-            <span>Furgone</span>
-          </div>
-          <div class="card__body">
-            <h3>Fiat Ducato</h3>
-            <p class="card__subtitle">Perfetto per lavoro e traslochi</p>
-            <ul class="card__tags">
-              <li>3 posti</li>
-              <li>Diesel</li>
-              <li>Manuale</li>
-            </ul>
-            <div class="card__footer">
-              <span class="price">da 69€ / giorno</span>
-              <button class="btn btn--ghost btn--sm">Dettagli</button>
-            </div>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- About -->
-  <section class="section" id="about">
-    <div class="container about">
-      <div class="about__text">
-        <h2>Chi è Avecar</h2>
-        <p>
-          Da oltre 10 anni aiutiamo aziende e privati a muoversi in modo semplice,
-          trasparente e conveniente. Mettiamo al centro le persone, non solo i veicoli.
-        </p>
-        <p>
-          Selezioniamo solo auto recenti e verificate, con manutenzione programmata
-          e assistenza su tutto il territorio nazionale.
-        </p>
-        <div class="about__highlights">
-          <div>
-            <strong>10+</strong>
-            <span>Anni di esperienza</span>
-          </div>
-          <div>
-            <strong>4.8/5</strong>
-            <span>Soddisfazione clienti</span>
-          </div>
-          <div>
-            <strong>100%</strong>
-            <span>Fatturazione trasparente</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="about__panel">
-        <h3>Perché sceglierci</h3>
-        <ul class="checklist">
-          <li>Contratti chiari, senza sorprese nascoste.</li>
-          <li>Supporto reale, via telefono ed email.</li>
-          <li>Soluzioni personalizzate per la tua mobilità.</li>
-          <li>Possibilità di consegna veicolo a domicilio.</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonials -->
-  <section class="section section--alt">
-    <div class="container">
-      <header class="section__header">
-        <h2>Cosa dicono i nostri clienti</h2>
-      </header>
-
-      <div class="testimonial" id="testimonialSlider">
-        <div class="testimonial__item testimonial__item--active">
-          <p>
-            “Servizio impeccabile, auto nuova e personale disponibile. Prenotazione semplice
-            e nessun costo nascosto.”
-          </p>
-          <span class="testimonial__author">Marco R. – Azienda logistica</span>
-        </div>
-        <div class="testimonial__item">
-          <p>
-            “Ho noleggiato un’auto per un weekend fuori porta. Ritiro veloce e riconsegna senza problemi.”
-          </p>
-          <span class="testimonial__author">Sara L. – Privato</span>
-        </div>
-        <div class="testimonial__item">
-          <p>
-            “Con il lungo termine abbiamo ottimizzato i costi della nostra flotta senza rinunciare a qualità e sicurezza.”
-          </p>
-          <span class="testimonial__author">Studio associato B.&C.</span>
-        </div>
-      </div>
-
-      <div class="testimonial__controls">
-        <button id="prevTestimonial" aria-label="Testimonianza precedente">‹</button>
-        <button id="nextTestimonial" aria-label="Testimonianza successiva">›</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact -->
-  <section class="section" id="contact">
-    <div class="container contact">
-      <div class="contact__info">
-        <h2>Contattaci</h2>
-        <p>
-          Compila il form o scrivici direttamente per ricevere un preventivo personalizzato
-          per auto singole o flotte aziendali.
-        </p>
-        <ul class="contact__list">
-          <li><strong>Telefono:</strong> <a href="tel:+390000000000">+39 000 000 000</a></li>
-          <li><strong>Email:</strong> <a href="mailto:info@avecar.it">info@avecar.it</a></li>
-          <li><strong>Sede:</strong> Inserisci qui il tuo indirizzo</li>
-        </ul>
-      </div>
-
-      <div class="contact__form">
-        <form>
-          <div class="form__row">
-            <label>
-              Nome e cognome
-              <input type="text" name="name" required>
-            </label>
-            <label>
-              Email
-              <input type="email" name="email" required>
-            </label>
-          </div>
-          <div class="form__row">
-            <label>
-              Telefono
-              <input type="tel" name="phone">
-            </label>
-            <label>
-              Tipo di richiesta
-              <select name="type">
-                <option>Informazioni generali</option>
-                <option>Preventivo noleggio breve termine</option>
-                <option>Preventivo noleggio lungo termine</option>
-                <option>Flotta aziendale</option>
-              </select>
-            </label>
-          </div>
-          <label>
-            Messaggio
-            <textarea name="message" rows="4" required></textarea>
-          </label>
-          <button type="submit" class="btn btn--primary btn--full">Invia richiesta</button>
-          <p class="form__note">
-            Cliccando su “Invia” accetti il trattamento dei dati ai sensi del GDPR.
-          </p>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container footer__inner">
-      <div class="footer__col">
-        <div class="logo logo--footer">
-          <span class="logo__icon">A</span>
-          <span class="logo__text">Avecar</span>
-        </div>
-        <p class="footer__text">
-          Soluzioni di mobilità per privati e aziende. Noleggio auto semplice e trasparente.
-        </p>
-      </div>
-      <div class="footer__col">
-        <h4>Link utili</h4>
-        <ul>
-          <li><a href="#services">Servizi</a></li>
-          <li><a href="#fleet">Flotta</a></li>
-          <li><a href="#about">Chi siamo</a></li>
-          <li><a href="#">Privacy &amp; Cookie</a></li>
-        </ul>
-      </div>
-      <div class="footer__col">
-        <h4>Orari</h4>
-        <p>Lunedì - Venerdì: 9:00 - 18:30</p>
-        <p>Sabato: 9:00 - 13:00</p>
-      </div>
-    </div>
-    <div class="footer__bottom">
-      <span>© <span id="year"></span> Avecar. Tutti i diritti riservati.</span>
-    </div>
-  </footer>
-
-  <button class="scroll-top" id="scrollTopBtn" aria-label="Torna su">↑</button>
-
-  <script src="script.js"></script>
-</body>
-</html>
+</body></html>
